@@ -4,7 +4,7 @@ class CreateUsersTable < ActiveRecord::Migration[5.2]
       u.string :email
       u.string :sns_type
       u.string :sns_token
-      u.datetime :joined_time     
+      u.datetime :joined_date  
     end 
   end
 end
