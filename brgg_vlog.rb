@@ -2,6 +2,7 @@
 require 'sinatra'
 require 'sinatra/activerecord'
 require 'sqlite3'
+require 'json'
 
 # Session 활성화
 enable :sessions
@@ -31,6 +32,12 @@ get '/' do
     erb :home
 end
 
+get '/dummy_data/vlog' do
+
+end
+
+get '/dummy_data/user' do
+end
 
 #-------------------------------------------
 # 00 회원가입 및 로그인
@@ -66,15 +73,14 @@ post '/vlog' do
     if session["user_id"].nil? 
 		redirect '/login'
 	else
-        #해당 user_id의 vlog_id 개수를 확인한다
-        #해당 vlog_id 개수가 0이면 '/vlog/list/no_post'로 이동한다. or Count가 아닌 Exist함수를 써서 처리한다?
-        #vlog Table 에서 user_id 컬럼 조건 검색을 어덯게 하지??
-        if Vlog.count(user_id => session['user_id']) == 0 #https://apidock.com/rails/v2.3.8/ActiveRecord/Calculations/ClassMethods/count
-            redirect '/vlog/list/no_post'
-                
-        #해당 vlog_id 개수가 0이 아니면 '/vlog/list/'로 이동한다.
-        else
+        #해당 user_id가 vlog.user_id 내에 존재하는지 확인
+        #해당 vlog_id 존재하면 '/vlog/list/'로 이동한다.
+        if Vlog.where("user_id" => session['user_id']).exists?
             redirect '/vlog/list'
+                
+        #해당 vlog_id가 존재하지 않으면 '/vlog/list/no_post'로 이동한다.
+        else
+            redirect '/vlog/list/no_post'
         end        
 	end 
 end
@@ -83,11 +89,25 @@ end
 get '/vlog/list/' do
     #해당 user_id에 속한 vlog_id를 호출한다.
     #vlog Table 에서 user_id 컬럼 조건 검색을 어덯게 하지??
-    User.find(session['user_id'])
     
+    #session이 아직 구현 안됐기 때문에 1번 유저가 로그인되어있다고 가정하고 진행
+    #@user = User.find(session['user_id'])
+    @user = User.find(1)
+    @vlogs = Vlog.where("user_id" => 1)
+    
+
+    #Data 잘 불러왔나 테스트로 호출해봅시다.
+    data_check = {"user_id" => @user.id,
+                 "user_email" => @user.email,                 
+                 "#vlog" => @vlogs.count,
+                 }
+    data_check.to_json
+   
+
     #vlog개수가 너무 많으면 페이지를 나눠야 한다 (pagination)
     #calendar view로 보여줄 것이기 때문에 vlog 호출 단위는 log_date의 월 단위로 한다 (max 31)
-
+    
+    
 end
 
 get '/vlog/list/no_post' do
@@ -122,9 +142,4 @@ end
 #-------------------------------------------
 # 03 Vlog History View
 #-------------------------------------------
-
-
-
-
-
 
