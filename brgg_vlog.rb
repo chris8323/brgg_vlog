@@ -201,9 +201,9 @@ end
 	# Vlog.where("log_date" => session['log_date'], "user_id" => session['user_id'])
 
 get '/creation/date_overwrite' do
-	o = array{true,false}
+  o = params["overwrite"]
 	# 덮어쓸지 안쓸지 물어보기 덮어쓰면 true, 아니면 false
-	if o.first
+	if o
 		v.where('log_date' => session['choice_date']).delete
 		redirect '/creation/question'
 	# 덮어쓴다 그러면 기존 브이로그 데이터 지우고
@@ -216,8 +216,8 @@ get '/creation/date_overwrite' do
 end
 
 get '/creation/question' do
-	q = array{true,false}
-	if user_question_choice = array.first 
+	q = [true, false]
+	if user_question_choice == q.first
 		redirect '/creation/video'
 	else
 		redirect '/creation/questionlist'
@@ -260,11 +260,9 @@ get '/creation/video' do
 end
 
 get '/creation/feeling' do
-	feeling = array{a, b, c, d}
+	feeling = params[:feeling]
 	# abcd안에 이미지 링크
-	feeling_select = array.first
-	# user가 a를 선택했다고 가정...
-	session['feeling_select'] = feeling_select
+	session['feeling'] = feeling
 
 	redirect '/creation/tag'
 	erb :feeling
