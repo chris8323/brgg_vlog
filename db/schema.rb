@@ -23,7 +23,7 @@ ActiveRecord::Schema.define(version: 2018_10_19_010215) do
     t.string "email"
     t.string "sns_type"
     t.string "sns_token"
-    t.datetime "joined_time"
+    t.datetime "joined_date"
   end
 
   create_table "vlogs", force: :cascade do |t|
