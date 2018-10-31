@@ -35,16 +35,19 @@ get '/detail' do
 end
 
 
-
-
 #History View에서 호출할 때 사용할 것.
 get '/list_by_filter' do
   device = Device.find_by_token(params[:token])
   unless device.nill?
     user = device.user
     unless user.nill?
-      # :page는 Fuse에서 받아올 것
-      user.vlogs.paginate(:page => params[:page], :per_page => 30).to_json
+      
+      v = user.vlogs.where(:log_date => range(params[:filter_to_date],params[:filter_from_date], #문법 맞는지 확인 필요
+                       :feeling => params[:filter_feeling]) # and조건이 아니라 or조건으로 걸어야 함
+      
+      #Pagination / :page 값을 Fuse에서 받아야 함
+      v = paginate(:page => params[:page], :per_page => 30).to_json
+      
     else   
       error = {:err_code => '002', 
         :err_msg => '가입되어있지 않은 User입니다.'}
@@ -56,7 +59,6 @@ get '/list_by_filter' do
     error.to_json 
   end
 end
-
 
 # Calender View에서 호출할 때 사용할 것. 
 # 이를 기준으로 특정 날짜를 클릭했을 때, write로 redirect될 지, detail로 redirect될 지 결정된다.
@@ -82,8 +84,6 @@ get '/list_by_month' do
     error.to_json 
   end
 end
-
-
   
   
 # Fuse에서 video 촬영 및 parameter 적용 후 최종 콘텐츠 등록
