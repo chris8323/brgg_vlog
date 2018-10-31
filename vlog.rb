@@ -10,22 +10,23 @@ class User < ActiveRecord::Base
 end
 
 class Device < ActiveRecord::Base
-    belongs_to :users
+    belongs_to :user
 end
 
 class Vlog < ActiveRecord::Base
-    belongs_to :users
+    belongs_to :user
 end
 
 
-
-get '/vlog' do 
-  device = Device.find_by_token(params[:token])
-  user = device.user
-  v = Vlog.find(params[:id])
-
-  if user == v.user
+# 특정 vlog_id의 detail을 볼 때 호출
+get '/detail' do 
+  d = Device.find_by_sns_token(params[:token])
+  v = Vlog.find(params[:vlog_id])
+  
+  if d.user == v.user
+    
     v.to_json
+
   else
     error = {:err_code => '001', 
              :err_msg => '권한이 없는 게시물 입니다.'}
@@ -35,8 +36,9 @@ end
 
 
 
+
 #History View에서 호출할 때 사용할 것.
-get '/list_by_page' do
+get '/list_by_filter' do
   device = Device.find_by_token(params[:token])
   unless device.nill?
     user = device.user
@@ -56,7 +58,7 @@ get '/list_by_page' do
 end
 
 
-# Calender View에서 호출할 때 사용할 것.
+# Calender View에서 호출할 때 사용할 것. 
 # 이를 기준으로 특정 날짜를 클릭했을 때, write로 redirect될 지, detail로 redirect될 지 결정된다.
 get '/list_by_month' do
   device = Device.find_by_token(params[:token])

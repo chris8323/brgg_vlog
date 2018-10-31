@@ -15,11 +15,11 @@ class User < ActiveRecord::Base
 end
 
 class Device < ActiveRecord::Base
-    belongs_to :users
+    belongs_to :user
 end
 
 class Vlog < ActiveRecord::Base
-    belongs_to :users
+    belongs_to :user
 end
 
 
@@ -121,7 +121,7 @@ get '/vlog/list/' do
     v = Vlog.where("user_id" => 1)
     
 
-    #불러온 데이터 결과값 > json으로
+	#불러온 데이터 결과값 > json으로
     result = {"user_id" => u.id,
             "user_email" => u.email,                 
             "#vlog" => v.count,
