@@ -8,7 +8,7 @@ class CreateVlogsTable < ActiveRecord::Migration[5.2]
       v.string :tag
       v.string :video_link
       v.string :thumbnail_link
-      v.time :video_ptime
+      v.integer :video_ptime
     end
   end
 end

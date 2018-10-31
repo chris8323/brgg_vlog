@@ -34,7 +34,7 @@ ActiveRecord::Schema.define(version: 2018_10_19_010215) do
     t.string "tag"
     t.string "video_link"
     t.string "thumbnail_link"
-    t.time "video_ptime"
+    t.integer "video_ptime"
   end
 
 end
