@@ -1,0 +1,8 @@
+db/dev.sqlite3
+/db/*.sqlite3
+/db/*.sqlite3-journal
+/db/schema.rb
+*.swp
+*.DS_Store
+*.env
+.env

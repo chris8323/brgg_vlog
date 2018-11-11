@@ -1,3 +1,2 @@
-require './brgg_vlog.rb'
-
+require './vlog_reviewed.rb'
 run Sinatra::Application

@@ -14,27 +14,24 @@ ActiveRecord::Schema.define(version: 2018_10_19_010215) do
 
   create_table "devices", force: :cascade do |t|
     t.integer "user_id"
-    t.string "os_ver"
-    t.string "push_token"
-    t.string "app_ver"
+    t.string "token"
   end
 
   create_table "users", force: :cascade do |t|
     t.string "email"
-    t.string "sns_type"
-    t.string "sns_token"
-    t.datetime "joined_date"
+    t.string "nickname"
+    t.string "password"
   end
 
   create_table "vlogs", force: :cascade do |t|
     t.integer "user_id"
-    t.datetime "create_date"
-    t.datetime "log_date"
+    t.datetime "created_at"
+    t.datetime "logged_at"
     t.string "feeling"
     t.string "tag"
     t.string "video_link"
     t.string "thumbnail_link"
-    t.time "video_ptime"
+    t.integer "video_ptime"
   end
 
 end
