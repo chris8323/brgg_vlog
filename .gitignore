@@ -6,3 +6,4 @@ db/dev.sqlite3
 *.DS_Store
 *.env
 .env
+Gemfile.lock
