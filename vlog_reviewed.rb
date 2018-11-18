@@ -82,7 +82,7 @@ post '/vlog' do
   user = Device.find_by_token(params[:token]).user
   file = params[:file]
   #path = "#{user.nickname}/#{file[:filename]}" 
-  path = "video/#{user.nickname}/#{file[:filename]}" #video upload path 수정
+  path = "video/#{user.id}/#{file[:filename]}" #video upload path 수정
 
   s3 = Aws::S3::Resource.new(region:'ap-northeast-1')
   obj = s3.bucket('bgbgbg-bgbg').object(path)
