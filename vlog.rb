@@ -45,7 +45,7 @@ get '/list_by_filter' do
     unless user.nill?
       
       v = user.vlogs.where(:log_date => range(params[:filter_to_date],params[:filter_from_date], #문법 맞는지 확인 필요
-                       :feeling => params[:filter_feeling]) # and조건이 아니라 or조건으로 걸어야 함
+                       :feeling => params[:filter_feeling])) # and조건이 아니라 or조건으로 걸어야 함
       
       #Pagination / :page 값을 Fuse에서 받아야 함
       v = paginate(:page => params[:page], :per_page => 30).to_json
