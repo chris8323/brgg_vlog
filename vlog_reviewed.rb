@@ -32,33 +32,47 @@ end
 #----------------------------------------
 # 회원 가입
 #----------------------------------------
-  # - 비밀번호 validation check?
-post '/user' do 
-  if User.find_by_email(params['email']).nill?
-    encrypt_password = BCrypt::Password.create(params[:password])
-    u = User.new(email: params[:email],
-                nickname: params[:nickname],
-                password: encrypt_password)
-    u.save
-    u.to_json
-  else
-    error = {:err_code => 000,
-            :err_msg => '이미 등록된 email입니다.'}
-    error.to_json
+  
+post '/user' do
+  # Parameter Check
+  if params[:email].nill?
+    return "Please Enter your Email".to_json
+  elsif params[:nickname].nill?
+    return "Please Enter your Nickname".to_json
+  elsif params[:password].nill?
+    return "Please Enter your Password".to_json
+  elsif params[:password_confirm].nill?
+    return "Please Confirm your Password".to_json
   end
+    ### 여러 조건 중 하나라도 만족하지 않으면 중간에 스크립트가 중단되나? 아니면 모두 pass 체크하게 되나?
+    ### 모두 pass하게 된다면 비효율적이지 않나?
+
+  # Password Validation Check
+  if !params[:password] == params[:password_confirm]
+    return "err002".to_json
+  elsif param[:password].length < 5
+    return "5글자 이상 비밀번호를 지정해주세요.".to_json
+  end
+
+  # Email Validation Check
+  if !parmas[:email].include? "@"
+    return "email 형식을 확인해주세요.".to_json
+  elsif !parmas[:email].include? "."
+    return "email 형식을 확인해주세요.".to_json
+  elsif !User.find_by_email(params['email']).nill?
+    return 'err001'.to_json 
+  end
+
+  
+  encrypt_password = BCrypt::Password.create(params[:password])
+  u = User.new(email: params[:email],
+              nickname: params[:nickname],
+              password: encrypt_password)
+  u.save
+  u.to_json
+  
 end
 
-#----------------------------------------
-# 회원 탈퇴
-#----------------------------------------
-  # - 초기에는 지원하지 않는게 좋겠다?
-
-delete '/user' do 
-  user = Device.find_by_token(params[:token]).user
-  target_user = User.find(params[:id])
-  target_user.delete if user == target_user
-  true.to_json
-end
 
 #----------------------------------------
 # Login
@@ -67,11 +81,15 @@ end
   # - 차후 Facebook Login으로 변경 예정
 post '/device' do 
   user = User.where(email: params[:email]).take
-  if !user.nil? and (BCrypt::Password.new(user.password) == params[:password])
-    d = Device.create(user: user, token: SecureRandom.uuid)
-    d.to_json
+  if !user.nil? 
+    if (BCrypt::Password.new(user.password) == params[:password])
+      d = Device.create(user: user, token: SecureRandom.uuid)
+      d.to_json
+    else
+      "err004".to_json
+    end
   else
-    "회원가입되어있지 않은 아이디입니다.".to_json
+    "err003".to_json
   end
 end
 
@@ -103,8 +121,16 @@ end
 # Vlog 작성하기
 #----------------------------------------
 # - FilePath는 Device의 Local Path??
-# - 필수 입력값 체크 (video / feeling / tag 등)
+# - 
 post '/vlog' do 
+  '''  
+  if params[:token].nill?  
+  elsif params[:logged_at].nill?
+  elsif params[:feeling].nill?
+  end
+  '''
+
+  
   user = Device.find_by_token(params[:token]).user
   logged_at = parmas[:logged_at] # yymmdd 형태로 변환?
   file = params[:file]
@@ -151,14 +177,10 @@ get '/list_by_month' do
                 ).to_json      
       
     else   
-      error = {:err_code => '002', 
-        :err_msg => '가입되어있지 않은 User입니다.'}
-      error.to_json   
+      'err003'.to_json   
     end
   else
-    error = {:err_code => '003', 
-      :err_msg => '등록되어 있지 않은 Device입니다.'}
-    error.to_json 
+    'err006'.to_json 
   end
 end
 
@@ -178,14 +200,9 @@ get '/list_by_filter' do
       v = paginate(:page => params[:page], :per_page => 30).to_json
       
     else   
-      error = {:err_code => '002', 
-        :err_msg => '가입되어있지 않은 User입니다.'}
-      error.to_json   
+      'err003'.to_json   
     end
   else
-    error = {:err_code => '003', 
-      :err_msg => '등록되어 있지 않은 Device입니다.'}
-    error.to_json 
+    'err006'.to_json 
   end
 end
-
