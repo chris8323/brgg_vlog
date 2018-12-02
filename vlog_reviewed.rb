@@ -36,13 +36,13 @@ end
   
 post '/user' do
   # Parameter Check
-  if params[:email].nill?
+  if params[:email].nil?
     return "Please Enter your Email".to_json
-  elsif params[:nickname].nill?
+  elsif params[:nickname].nil?
     return "Please Enter your Nickname".to_json
-  elsif params[:password].nill?
+  elsif params[:password].nil?
     return "Please Enter your Password".to_json
-  elsif params[:password_confirm].nill?
+  elsif params[:password_confirm].nil?
     return "Please Confirm your Password".to_json
   end
     ### 여러 조건 중 하나라도 만족하지 않으면 중간에 스크립트가 중단되나? 아니면 모두 pass 체크하게 되나?
@@ -51,7 +51,7 @@ post '/user' do
   # Password Validation Check
   if !params[:password] == params[:password_confirm]
     return "err002".to_json
-  elsif param[:password].length < 5
+  elsif params[:password].length < 5
     return "5글자 이상 비밀번호를 지정해주세요.".to_json
   end
 
@@ -60,7 +60,7 @@ post '/user' do
     return "email 형식을 확인해주세요.".to_json
   elsif !parmas[:email].include? "."
     return "email 형식을 확인해주세요.".to_json 
-  elsif !User.find_by_email(params[:email]).nill?
+  elsif !User.find_by_email(params[:email]).nil?
     return 'err001'.to_json 
   end
 
@@ -83,9 +83,9 @@ end
 
 post '/device' do 
   # Parameter Check
-  if params[:email].nill?
+  if params[:email].nil?
     return "Please Enter your Email".to_json
-  elsif params[:password].nill?
+  elsif params[:password].nil?
     return "Please Enter your Password".to_json
   end
 
@@ -166,21 +166,21 @@ end
 # Vlog 작성 Test
 post '/test' do 
   '''  
-  if params[:token].nill?  
-  elsif params[:logged_at].nill?
-  elsif params[:feeling].nill?
+  if params[:token].nil?  
+  elsif params[:logged_at].nil?
+  elsif params[:feeling].nil?
   end
   '''
   # Parameter Check
-  if params[:token].nill?
+  if params[:token].nil?
     return "!".to_json
-  elsif params[:is_todayLog].nill?
+  elsif params[:is_todayLog].nil?
     return "!".to_json
-  elsif params[:feeling].nill?
+  elsif params[:feeling].nil?
     return "!".to_json
-  elsif params[:tag].nill?
+  elsif params[:tag].nil?
     return "!".to_json
-  elsif params[:file].nill?
+  elsif params[:file].nil?
     return "!".to_json
   end
   
@@ -222,9 +222,9 @@ end
 # 이를 기준으로 특정 날짜를 클릭했을 때, write로 redirect될 지, detail로 redirect될 지 결정된다.
 get '/list_by_month' do
   device = Device.find_by_token(params[:token])
-  unless device.nill?
+  unless device.nil?
     user = device.user
-    unless user.nill?
+    unless user.nil?
       # :yesr와 :month는 Fuse에서 User가 선택한 값
       vlog.where(:user_id => user.id,
                 :logged_at.year => params[:year], ### 문법에 맞는가??? 확인 필요...
@@ -245,9 +245,9 @@ end
 #----------------------------------------
 get '/list_by_filter' do
   device = Device.find_by_token(params[:token])
-  unless device.nill?
+  unless device.nil?
     user = device.user
-    unless user.nill?      
+    unless user.nil?      
       v = user.vlogs.where(:logged_at => range(params[:filter_to_date],params[:filter_from_date], #문법 맞는지 확인 필요
                        :feeling => params[:filter_feeling])) # and조건이 아니라 or조건으로 걸어야 함
       
