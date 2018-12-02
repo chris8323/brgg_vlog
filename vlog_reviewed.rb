@@ -180,8 +180,8 @@ post '/test' do
     return "!".to_json
   elsif params[:tag].nil?
     return "!".to_json
-  elsif params[:file].nil?
-    return "!".to_json
+  #elsif params[:file].nil?
+  #  return "!".to_json
   end
   
   user = Device.find_by_token(params[:token]).user
@@ -194,22 +194,23 @@ post '/test' do
     logged_at = created_at - 1
   end
   
-  file = params[:file]
+  '''file = params[:file]
     
   video_path = "#{user.id}/#{logged_at}/video/#{file[:filename]}" #video upload path 수정
   
   thumbnail_path = "#{user.id}/#{logged_at}/thumbnail/#{file[:filename]}"
 
-  s3 = Aws::S3::Resource.new(region:'ap-northeast-1')
-  obj = s3.bucket('bgbgbg-bgbg').object(path)
-  s = obj.upload_file(file[:tempfile], {acl: 'public-read'})
-
+  s3 = Aws::S3::Resource.new(region:"ap-northeast-1")
+  obj = s3.bucket("bgbgbg-bgbg").object(path)
+  s = obj.upload_file(file[:tempfile], {acl: "public-read"})
+'''
   v = Vlog.create(user: user, 
                 created_at: created_at,
                 logged_at: logged_at,
                 feeling: params[:feeling],
                 tag: params[:tag],
-                video_link: "https://s3-ap-northeast-1.amazonaws.com/bgbgbg-bgbg/#{video_path}")
+                #video_link: "https://s3-ap-northeast-1.amazonaws.com/bgbgbg-bgbg/#{video_path}"
+                )
              
   v.to_json
 end
