@@ -5,6 +5,7 @@ require 'aws-sdk'
 require 'bcrypt'
 require 'securerandom'
 require 'will_paginate'
+require 'Date'
 
 Dotenv.load
 
@@ -58,8 +59,8 @@ post '/user' do
   if !parmas[:email].include? "@"
     return "email 형식을 확인해주세요.".to_json
   elsif !parmas[:email].include? "."
-    return "email 형식을 확인해주세요.".to_json
-  elsif !User.find_by_email(params['email']).nill?
+    return "email 형식을 확인해주세요.".to_json 
+  elsif !User.find_by_email(params[:email]).nill?
     return 'err001'.to_json 
   end
 
@@ -79,18 +80,34 @@ end
 #----------------------------------------
   # - 현재는 email / password 기반 로그인
   # - 차후 Facebook Login으로 변경 예정
+
 post '/device' do 
-  user = User.where(email: params[:email]).take
-  if !user.nil? 
-    if (BCrypt::Password.new(user.password) == params[:password])
-      d = Device.create(user: user, token: SecureRandom.uuid)
-      d.to_json
-    else
-      "err004".to_json
-    end
-  else
-    "err003".to_json
+  # Parameter Check
+  if params[:email].nill?
+    return "Please Enter your Email".to_json
+  elsif params[:password].nill?
+    return "Please Enter your Password".to_json
   end
+
+  # Email Validation Check 
+  if !parmas[:email].include? "@"
+    return "email 형식을 확인해주세요.".to_json
+  elsif !parmas[:email].include? "."
+    return "email 형식을 확인해주세요.".to_json 
+  elsif User.where(email: params[:email]).take.nil?     
+    return "err003".to_json
+  end
+
+  # Password Validation Check
+  if param[:password].length < 5
+    return "비밀번호는 5글자 이상입니다.".to_json
+  elsif !(BCrypt::Password.new(User.where(email: params[:email]).take.password) == params[:password])
+    return "err004".to_json
+  end
+
+  d = Device.create(user: user, token: SecureRandom.uuid)
+  d.to_json
+
 end
 
 #----------------------------------------
@@ -121,15 +138,8 @@ end
 # Vlog 작성하기
 #----------------------------------------
 # - FilePath는 Device의 Local Path??
-# - 
-post '/vlog' do 
-  '''  
-  if params[:token].nill?  
-  elsif params[:logged_at].nill?
-  elsif params[:feeling].nill?
-  end
-  '''
 
+post '/vlog' do 
   
   user = Device.find_by_token(params[:token]).user
   logged_at = parmas[:logged_at] # yymmdd 형태로 변환?
@@ -151,12 +161,57 @@ post '/vlog' do
                 
   v.to_json
 
-=begin
-Video Thumbnail과 Ptime 계산은 vlog 작성 이후 별도 로직으로 추출/계산?
-      v.string    :thumbnail_link
-      v.integer   :video_ptime
-=end
+end
 
+# Vlog 작성 Test
+post '/test' do 
+  '''  
+  if params[:token].nill?  
+  elsif params[:logged_at].nill?
+  elsif params[:feeling].nill?
+  end
+  '''
+  # Parameter Check
+  if params[:token].nill?
+    return "!".to_json
+  elsif params[:is_todayLog].nill?
+    return "!".to_json
+  elsif params[:feeling].nill?
+    return "!".to_json
+  elsif params[:tag].nill?
+    return "!".to_json
+  elsif params[:file].nill?
+    return "!".to_json
+  end
+  
+  user = Device.find_by_token(params[:token]).user
+
+  created_at = Date.today
+
+  if params[:is_todayLog] == true
+    logged_at = created_at
+  else
+    logged_at = created_at - 1
+  end
+  
+  file = params[:file]
+    
+  video_path = "#{user.id}/#{logged_at}/video/#{file[:filename]}" #video upload path 수정
+  
+  thumbnail_path = "#{user.id}/#{logged_at}/thumbnail/#{file[:filename]}"
+
+  s3 = Aws::S3::Resource.new(region:'ap-northeast-1')
+  obj = s3.bucket('bgbgbg-bgbg').object(path)
+  s = obj.upload_file(file[:tempfile], {acl: 'public-read'})
+
+  v = Vlog.create(user: user, 
+                created_at: created_at,
+                logged_at: logged_at,
+                feeling: params[:feeling],
+                tag: params[:tag],
+                video_link: "https://s3-ap-northeast-1.amazonaws.com/bgbgbg-bgbg/#{video_path}")
+             
+  v.to_json
 end
 
 
