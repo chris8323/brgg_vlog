@@ -56,9 +56,9 @@ post '/user' do
   end
 
   # Email Validation Check
-  if !parmas[:email].include? "@"
+  if !params[:email].include? "@"
     return "email 형식을 확인해주세요.".to_json
-  elsif !parmas[:email].include? "."
+  elsif !params[:email].include? "."
     return "email 형식을 확인해주세요.".to_json 
   elsif !User.find_by_email(params[:email]).nil?
     return 'err001'.to_json 
@@ -90,9 +90,9 @@ post '/device' do
   end
 
   # Email Validation Check 
-  if !parmas[:email].include? "@"
+  if !params[:email].include? "@"
     return "email 형식을 확인해주세요.".to_json
-  elsif !parmas[:email].include? "."
+  elsif !params[:email].include? "."
     return "email 형식을 확인해주세요.".to_json 
   elsif User.where(email: params[:email]).take.nil?     
     return "err003".to_json
@@ -142,7 +142,7 @@ end
 post '/vlog' do 
   
   user = Device.find_by_token(params[:token]).user
-  logged_at = parmas[:logged_at] # yymmdd 형태로 변환?
+  logged_at = params[:logged_at] # yymmdd 형태로 변환?
   file = params[:file]
   #path = "#{user.nickname}/#{file[:filename]}" 
   video_path = "#{user.id}/#{logged_at}/video/#{file[:filename]}" #video upload path 수정
