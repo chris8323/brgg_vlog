@@ -64,6 +64,14 @@ post '/user' do
     return 'err001'.to_json 
   end
 
+  # Nickname Validation Check
+  if params[:password].length < 3
+    return "3자 이상 10자 이하의 Nickname을 입력해주세요.".to_json
+  elsif params[:password].length > 10
+    return "3자 이상 10자 이하의 Nickname을 입력해주세요.".to_json
+  elsif !User.find_by_nickname(params[:nickname]).nil?
+    return 'err001'.to_json 
+  end
   
   encrypt_password = BCrypt::Password.create(params[:password])
   u = User.new(email: params[:email],
