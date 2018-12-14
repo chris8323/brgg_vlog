@@ -127,9 +127,15 @@ delete '/device' do
     return "Missing Parameter (token)".to_json
   end
 
-  user = Device.find_by_token(params[:token]).user
-  user.delete
-  true.to_json
+  device = Device.find_by_token(params[:token])
+
+  if device.nil?
+    'token과 일치하는 device data가 없습니다.'.to_json
+  else
+    device.delete
+    true.to_json
+  end
+  
 end
 
 #----------------------------------------
