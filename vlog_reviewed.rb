@@ -119,9 +119,14 @@ post '/device' do
 end
 
 #----------------------------------------
-# Logout? 회원 탈퇴?
+# Logout
 #----------------------------------------
 delete '/device' do 
+  # Parameter Check
+  if params[:token].nil?
+    return "Missing Parameter (token)".to_json
+  end
+
   user = Device.find_by_token(params[:token]).user
   user.delete
   true.to_json
@@ -131,8 +136,15 @@ end
 # Vlog Detail 조회하기
 #----------------------------------------
 get '/vlog' do 
+  # Parameter Check
+  if params[:token].nil?
+    return "Missing Parameter (token)".to_json
+  elsif params[:vlog_id].nil?
+    return "Missing Parameter (vlog_id)".to_json
+  end
+
   d = Device.find_by_token(params[:token])
-  v = Vlog.find(params[:id])
+  v = Vlog.find(params[:vlog_id])
   if d.user_id == v.user_id?
     v.to_json
   else
@@ -148,7 +160,19 @@ end
 # - FilePath는 Device의 Local Path??
 
 post '/vlog' do 
-  
+  # Parameter Check
+  if params[:token].nil?
+    return "Missing Parameter (token)".to_json
+  elsif params[:logged_at].nil?
+    return "Missing Parameter (logged_at)".to_json
+  elsif params[:file].nil?
+    return "Missing Parameter (file)".to_json
+  elsif params[:feeling].nil?
+    return "Missing Parameter (feeling)".to_json
+  elsif params[:tag].nil?
+    return "Missing Parameter (tag)".to_json
+  end 
+
   user = Device.find_by_token(params[:token]).user
   logged_at = params[:logged_at] # yymmdd 형태로 변환?
   file = params[:file]
@@ -173,21 +197,16 @@ end
 
 # Vlog 작성 Test
 post '/test' do 
-  '''  
-  if params[:token].nil?  
-  elsif params[:logged_at].nil?
-  elsif params[:feeling].nil?
-  end
-  '''
+
   # Parameter Check
   if params[:token].nil?
-    return "!".to_json
+    return "Missing Parameter (token)".to_json
   elsif params[:is_todayLog].nil?
-    return "!".to_json
+    return "Missing Parameter (is_todayLog)".to_json
   elsif params[:feeling].nil?
-    return "!".to_json
+    return "Missing Parameter (feeling)".to_json
   elsif params[:tag].nil?
-    return "!".to_json
+    return "Missing Parameter (tag)".to_json
   #elsif params[:file].nil?
   #  return "!".to_json
   end
