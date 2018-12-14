@@ -70,7 +70,7 @@ post '/user' do
   elsif params[:password].length > 10
     return "3자 이상 10자 이하의 Nickname을 입력해주세요.".to_json
   elsif !User.find_by_nickname(params[:nickname]).nil?
-    return 'err001'.to_json 
+    return '이미 등록된 nickname입니다. 수정해주세요.'.to_json 
   end
   
   encrypt_password = BCrypt::Password.create(params[:password])
@@ -107,13 +107,13 @@ post '/device' do
   end
 
   # Password Validation Check
-  if param[:password].length < 5
+  if params[:password].length < 5
     return "비밀번호는 5글자 이상입니다.".to_json
   elsif !(BCrypt::Password.new(User.where(email: params[:email]).take.password) == params[:password])
     return "err004".to_json
   end
 
-  d = Device.create(user: user, token: SecureRandom.uuid)
+  d = Device.create(user_id: User.where(email: params[:email]).take.id, token: SecureRandom.uuid)
   d.to_json
 
 end
