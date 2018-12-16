@@ -221,13 +221,16 @@ post '/test' do
 
   created_at = Date.today
 
-  if params[:is_todayLog] == true
+  if params[:is_todayLog] == 'T'
     logged_at = created_at
-  else
+  elsif params[:is_todayLog] == 'F'
     logged_at = created_at - 1
+  else
+    return 'Wrong Parameter (is_todayLog)'.to_json
   end
   
-  '''file = params[:file]
+  '''
+  file = params[:file]
     
   video_path = "#{user.id}/#{logged_at}/video/#{file[:filename]}" #video upload path 수정
   
@@ -236,7 +239,7 @@ post '/test' do
   s3 = Aws::S3::Resource.new(region:"ap-northeast-1")
   obj = s3.bucket("bgbgbg-bgbg").object(path)
   s = obj.upload_file(file[:tempfile], {acl: "public-read"})
-'''
+  '''
   v = Vlog.create(user: user, 
                 created_at: created_at,
                 logged_at: logged_at,
@@ -255,23 +258,30 @@ end
 #----------------------------------------
 # 이를 기준으로 특정 날짜를 클릭했을 때, write로 redirect될 지, detail로 redirect될 지 결정된다.
 get '/list_by_month' do
-  device = Device.find_by_token(params[:token])
-  unless device.nil?
-    user = device.user
-    unless user.nil?
-      # :yesr와 :month는 Fuse에서 User가 선택한 값
-      vlog.where(:user_id => user.id,
-                :logged_at.year => params[:year], ### 문법에 맞는가??? 확인 필요...
-                :logged_at.month => params[:month], ### 문법에 맞는가??? 확인 필요...
-                ).to_json      
-      
-    else   
-      'err003'.to_json   
-    end
-  else
-    'err006'.to_json 
+  
+  # Parameter Check
+  if params[:token].nil?
+    return "Missing Parameter (token)".to_json
+  elsif params[:year].nil?
+    return "Missing Parameter (year)".to_json
+  elsif params[:month].nil?
+    return "Missing Parameter (month)".to_json
   end
-end
+
+  
+  device = Device.find_by_token(params[:token])
+
+  # Validation Check
+  if device.nil?
+    return 'err006'.to_json
+  elsif user.nil?
+    return 'err003'.to_json
+  else
+
+  vlog.where(:user_id => user.id,
+          :logged_at.year => params[:year], ### 문법에 맞는가??? 확인 필요...
+          :logged_at.month => params[:month], ### 문법에 맞는가??? 확인 필요...
+          ).to_json      
 
 
 #----------------------------------------
