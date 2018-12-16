@@ -5,6 +5,7 @@ require 'aws-sdk'
 require 'bcrypt'
 require 'securerandom'
 require 'will_paginate'
+require 'will_paginate/active_record'
 require 'Date'
 
 Dotenv.load
@@ -274,6 +275,7 @@ get '/list_by_month' do
     return 'err006'.to_json
   end
 
+  # Filtering Logic
   dateSelected = Date.new(params[:year].to_i, params[:month].to_i).to_time    
 
   v = Vlog.where(:user_id => device.user_id,
@@ -282,9 +284,9 @@ get '/list_by_month' do
   
   # Vlog Validation Check
   if v.nil?
-    'No Vlog yet'.to_json
+    'No Vlogs yet'.to_json
   elsif v.length == 0
-    'No Vlog at this month'.to_json
+    'No Vlogs at this month'.to_json
   else
     v.to_json      
   end
@@ -296,20 +298,50 @@ end
 # Vlog List 호출하기 (Filter 적용)
 #----------------------------------------
 get '/list_by_filter' do
+  # Parameter Check
+  if params[:token].nil?
+    return "Missing Parameter (token)".to_json
+  elsif params[:page].nil?
+    return "Missing Parameter (page)".to_json
+  end
+
+
   device = Device.find_by_token(params[:token])
-  unless device.nil?
-    user = device.user
-    unless user.nil?      
-      v = user.vlogs.where(:logged_at => range(params[:filter_to_date],params[:filter_from_date], #문법 맞는지 확인 필요
-                       :feeling => params[:filter_feeling])) # and조건이 아니라 or조건으로 걸어야 함
-      
-      #Pagination / :page 값을 Fuse에서 parameter로 받아야 함
-      v = paginate(:page => params[:page], :per_page => 30).to_json
-      
-    else   
-      'err003'.to_json   
+
+  # Device Validation Check
+  if device.nil?
+    'err006'.to_json
+  end
+
+  # Filtering Logic
+  if !params[:feeling].nil?
+    if !params[:tag].nil?
+      v = Vlog.where(:user_id => device.user_id,
+                    :feeling => params[:feeling],
+                    :tag => params[:tag])
+    else
+      v = Vlog.where(:user_id => device.user_id,
+                    :feeling => params[:feeling])
     end
   else
-    'err006'.to_json 
+    if !params[:tag].nil?
+      v = Vlog.where(:user_id => device.user_id,
+                    :tag => params[:tag])
+    else
+      v = Vlog.where(:user_id => device.user_id)
+    end
   end
+
+  # Pagination (:per_page > Hard Cording 처리)
+  p = v.paginate(:page => params[:page].to_i, 
+                :per_page => 5
+                )
+  if p.length == 0
+    return 'No Vlogs to show'
+  else
+    return p.to_json
+  end
+  
+
 end
+
