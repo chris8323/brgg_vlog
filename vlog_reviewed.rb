@@ -222,6 +222,7 @@ post '/test' do
 
   created_at = Date.today
 
+  # Calculating 'logged_at'
   if params[:is_todayLog] == 'T'
     logged_at = created_at
   elsif params[:is_todayLog] == 'F'
@@ -253,6 +254,45 @@ post '/test' do
 end
 
 
+#----------------------------------------
+# Vlog 존재 여부 확인
+#----------------------------------------
+get '/datecheck' do
+  # Parameter Check
+  if params[:token].nil?
+    return "Missing Parameter (token)".to_json
+  elsif params[:is_todayLog].nil?
+    return "Missing Parameter (page)".to_json
+  end
+
+  device = Device.find_by_token(params[:token])
+
+  # Device Validation Check
+  if device.nil?
+    return 'err006'.to_json
+  end
+
+  created_at = Date.today
+
+  # Calculating 'logged_at'
+  if params[:is_todayLog] == 'T'
+    logged_at = created_at
+  elsif params[:is_todayLog] == 'F'
+    logged_at = created_at - 1
+  else
+    return 'Wrong Parameter (is_todayLog)'.to_json
+  end
+
+  v = Vlog.where(:user => device.user_id,
+                :logged_at => logged_at
+                ) 
+  if v.length==0
+    return 'Available'.to_json
+  else
+    return 'Occupied'.to_json
+  end
+  
+end
 
 #----------------------------------------
 # Vlog List 호출하기 (Calendar view 적용)
@@ -340,8 +380,7 @@ get '/list_by_filter' do
     return 'No Vlogs to show'
   else
     return p.to_json
-  end
-  
-
+  end  
 end
+
 
