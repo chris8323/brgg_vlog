@@ -256,7 +256,6 @@ end
 #----------------------------------------
 # Vlog List 호출하기 (Calendar view 적용)
 #----------------------------------------
-# 이를 기준으로 특정 날짜를 클릭했을 때, write로 redirect될 지, detail로 redirect될 지 결정된다.
 get '/list_by_month' do
   
   # Parameter Check
@@ -267,21 +266,30 @@ get '/list_by_month' do
   elsif params[:month].nil?
     return "Missing Parameter (month)".to_json
   end
-
   
   device = Device.find_by_token(params[:token])
-
-  # Validation Check
+  
+  # Device Validation Check
   if device.nil?
     return 'err006'.to_json
-  elsif user.nil?
-    return 'err003'.to_json
-  else
+  end
 
-  vlog.where(:user_id => user.id,
-          :logged_at.year => params[:year], ### 문법에 맞는가??? 확인 필요...
-          :logged_at.month => params[:month], ### 문법에 맞는가??? 확인 필요...
-          ).to_json      
+  dateSelected = Date.new(params[:year].to_i, params[:month].to_i).to_time    
+
+  v = Vlog.where(:user_id => device.user_id,
+                 :logged_at => dateSelected.beginning_of_month..dateSelected.end_of_month)
+            
+  
+  # Vlog Validation Check
+  if v.nil?
+    'No Vlog yet'.to_json
+  elsif v.length == 0
+    'No Vlog at this month'.to_json
+  else
+    v.to_json      
+  end
+
+end
 
 
 #----------------------------------------
