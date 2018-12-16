@@ -50,7 +50,7 @@ post '/user' do
     ### 모두 pass하게 된다면 비효율적이지 않나?
 
   # Password Validation Check
-  if !params[:password] == params[:password_confirm]
+  if params[:password] != params[:password_confirm]
     return "err002".to_json
   elsif params[:password].length < 5
     return "5글자 이상 비밀번호를 지정해주세요.".to_json
